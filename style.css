@@ -1,0 +1,23 @@
+
+/* body and html full height */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* main content should take up all available space */
+.main-content {
+    flex: 1;
+}
+
+/* footer stays at the bottom */
+footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px 0;
+}
+
+
