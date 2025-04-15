@@ -20,4 +20,41 @@ footer {
     padding: 10px 0;
 }
 
+/* about dialog box*/
+dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 50%;
+    max-width: 400px;
+    text-align: center;
+    position: fixed; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    z-index: 1000; /*modal appears above other content */
+}
 
+.modal-content {
+    position: relative;
+    padding: 20px;
+    text-align: center;
+    background-color: white;
+    border-radius: 8px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}

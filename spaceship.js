@@ -7,7 +7,7 @@ function showSection(sectionId) {
         section.style.display = 'none';
     });
 
-    // show the selected section
+    // show selected 
     const activeSection = document.getElementById(sectionId);
     if (activeSection) {
         activeSection.style.display = 'block';
@@ -128,10 +128,93 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             // successful login
             document.getElementById('login-error').style.display = 'none';
-            showSection('game'); // show game screen
+            showSection('configuration'); // show game screen
         } else {
             // unsuccessful login
             document.getElementById('login-error').style.display = 'block';
         }
     });
+});
+
+
+// open the about 
+function openAboutDialog() {
+    const aboutModal = document.getElementById('game-dialog');
+    aboutModal.showModal(); 
+}
+
+// close the about 
+function closeDialog() {
+    const aboutModal = document.getElementById('game-dialog');
+    aboutModal.close(); 
+}
+
+// closing the dialog
+document.addEventListener('DOMContentLoaded', () => {
+    const gameDialog = document.getElementById('game-dialog');
+    const closeDialogButton = document.getElementById('close-dialog');
+
+    //  close button
+    closeDialogButton.addEventListener('click', closeDialog);
+
+    // close clicking outside of it
+    gameDialog.addEventListener('click', (event) => {
+        if (event.target === gameDialog) {
+            closeDialog();
+        }
+    });
+
+    // close when pressing the escape 
+    gameDialog.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && gameDialog.open) {
+            closeDialog();
+        }
+    });
+});
+
+
+// handle configuration form 
+document.addEventListener('DOMContentLoaded', () => {
+    const configurationForm = document.getElementById('configuration-form');
+    const gameCanvas = document.getElementById('game-canvas');
+
+    configurationForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const shootKey = document.getElementById('shoot-key').value
+        const gameTime = parseInt(document.getElementById('game-time').value, 10);
+
+        // Validate shooting key
+        if (!/^[a-zA-Z]$/.test(shootKey) && shootKey !== ' ') {
+            alert('Please enter a valid shooting key (a single letter or the spacebar).');
+            return;
+        }
+
+        // validate game time
+        if (gameTime < 2 || gameTime > 10) {
+            alert('Game time must be between 2 and 10 minutes.');
+            return;
+        }
+
+        console.log(`Shooting Key: ${shootKey}`);
+        console.log(`Game Time: ${gameTime} minutes`);
+
+        // move to game 
+        showSection('game-screen');
+        startGame(shootKey, gameTime);
+    });
+
+    // start the game
+    function startGame(shootKey, gameTime) {
+        const ctx = gameCanvas.getContext('2d');
+        ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+        // display game configuration on the canvas
+        ctx.font = '20px Arial';
+        ctx.fillText(`Shooting Key: ${shootKey}`, 10, 30);
+        ctx.fillText(`Game Time: ${gameTime} minutes`, 10, 60);
+
+        // add your game logic here
+        console.log('Game started!');
+    }
 });
