@@ -218,3 +218,297 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Game started!');
     }
 });
+
+
+// handle the game screen
+document.addEventListener('DOMContentLoaded', () => {
+    const gameCanvas = document.getElementById('game-canvas');
+    const ctx = gameCanvas.getContext('2d');
+    const canvasWidth = gameCanvas.width;
+    const canvasHeight = gameCanvas.height;
+
+    // Load assets
+    const backgroundMusic = new Audio('assets/bg_music.mp3');
+    backgroundMusic.volume = 0.5; // Set volume to 50%
+    backgroundMusic.loop = true;
+
+    const shootSound = new Audio('assets/hero_sound.mp3');
+    const explosionSound = new Audio('assets/enemy_dies_sound.mp3');
+    const heroDiesSound = new Audio('assets/hero_dies_sound.mp3');
+
+    const backgroundImage = new Image();
+    backgroundImage.src = 'assets/bg.jpeg';
+
+    const heroImage = new Image();
+    heroImage.src = 'assets/hero.png';
+
+    const enemyImages = [
+        'assets/enemy1.png', // Row 1
+        'assets/enemy2.png', // Row 2
+        'assets/enemy3.png', // Row 3
+        'assets/enemy4.png', // Row 4
+    ];
+
+    function startGame(shootKey, gameTime) {
+        backgroundMusic.play();
+    
+        // Game variables
+        const player = {
+            x: Math.random() * (canvasWidth - 50),
+            y: canvasHeight - 60,
+            width: 50,
+            height: 50,
+            lives: 3,
+            score: 0,
+        };
+    
+        const enemies = [];
+        const enemyRows = 4;
+        const enemyCols = 5;
+        const enemyWidth = 60;
+        const enemyHeight = 60;
+        const enemyPadding = 20;
+        const enemyOffsetTop = 50;
+        const enemyOffsetLeft = 50;
+        let enemyDirection = 1; // 1 for right, -1 for left
+        let enemySpeed = 1;
+    
+        const bullets = [];
+        const enemyBullets = [];
+        let lastEnemyBulletTime = 0;
+    
+        // Add a gameOver flag
+        let gameOver = false;
+    
+        // Timer for game time
+        const startTime = Date.now();
+        const gameDuration = gameTime * 60 * 1000; // Convert minutes to milliseconds
+    
+        // Create enemies
+        for (let row = 0; row < enemyRows; row++) {
+            for (let col = 0; col < enemyCols; col++) {
+                const enemyImage = new Image();
+                enemyImage.src = enemyImages[row];
+                enemies.push({
+                    x: enemyOffsetLeft + col * (enemyWidth + enemyPadding),
+                    y: enemyOffsetTop + row * (enemyHeight + enemyPadding),
+                    width: enemyWidth,
+                    height: enemyHeight,
+                    image: enemyImage,
+                    points: (4 - row) * 5, // Points based on row (Row 4 = 5 points, Row 1 = 20 points)
+                });
+            }
+        }
+    
+        // Handle player movement
+        const keys = {};
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+    
+        // Handle shooting
+        document.addEventListener('keydown', (e) => {
+            if (e.key === shootKey && bullets.length < 1) {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2.5,
+                    y: player.y,
+                    width: 5,
+                    height: 10,
+                    color: 'yellow',
+                });
+                shootSound.play();
+            }
+        });
+    
+        // Game loop
+        function gameLoop() {
+            if (gameOver) return; // Stop the game loop if the game is over
+    
+            // Check if time is up
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime >= gameDuration) {
+                backgroundMusic.pause();
+                alert('Time is up! Your score: ' + player.score);
+                gameOver = true; // Set gameOver flag to true
+                return;
+            }
+    
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    
+            // Draw background
+            ctx.drawImage(backgroundImage, 0, 0, canvasWidth, canvasHeight);
+    
+            // Draw player
+            ctx.drawImage(heroImage, player.x, player.y, player.width, player.height);
+    
+            // Move player
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= 5;
+            if (keys['ArrowRight'] && player.x < canvasWidth - player.width) player.x += 5;
+            if (keys['ArrowUp'] && player.y > canvasHeight * 0.6) player.y -= 5;
+            if (keys['ArrowDown'] && player.y < canvasHeight - player.height) player.y += 5;
+    
+            // Draw enemies
+            enemies.forEach((enemy) => {
+                ctx.drawImage(enemy.image, enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+    
+            // Move enemies
+            let switchDirection = false;
+            enemies.forEach((enemy) => {
+                enemy.x += enemySpeed * enemyDirection;
+                if (enemy.x + enemy.width > canvasWidth || enemy.x < 0) {
+                    switchDirection = true;
+                }
+            });
+            if (switchDirection) {
+                enemyDirection *= -1;
+                enemies.forEach((enemy) => {
+                    enemy.y += 10; // Move down when switching direction
+                });
+            }
+
+            // Check collision between player and enemies
+            enemies.forEach((enemy) => {
+                const hitboxMargin = 12; // Reduce the hitbox size by 10 pixels on all sides
+                if (
+                    player.x + hitboxMargin < enemy.x + enemy.width - hitboxMargin &&
+                    player.x + player.width - hitboxMargin > enemy.x + hitboxMargin &&
+                    player.y + hitboxMargin < enemy.y + enemy.height - hitboxMargin &&
+                    player.y + player.height - hitboxMargin > enemy.y + hitboxMargin
+                ) {
+                    // Collision detected
+                    player.lives -= 1; // Decrease lives
+                    heroDiesSound.play();
+                    player.x = Math.random() * (canvasWidth - 50); // Reset player position
+                    player.y = canvasHeight - 60; // Reset player position to bottom
+
+                    if (player.lives === 0) {
+                        backgroundMusic.pause();
+                        alert('Game Over! Your score: ' + player.score);
+                        gameOver = true; // Set gameOver flag to true
+                        return;
+                    }
+                }
+            });
+    
+            // Draw and move bullets
+            bullets.forEach((bullet, index) => {
+                bullet.y -= 10;
+                ctx.fillStyle = bullet.color;
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    
+                // Remove bullet if it goes off-screen
+                if (bullet.y < 0) {
+                    bullets.splice(index, 1);
+                }
+    
+                // Check collision with enemies
+                enemies.forEach((enemy, enemyIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        bullets.splice(index, 1); // Remove bullet
+                        enemies.splice(enemyIndex, 1); // Remove enemy
+                        player.score += enemy.points; // Add points
+                        explosionSound.play();
+                    }
+                });
+            });
+    
+            // Enemy shooting
+            if (
+                enemyBullets.length === 0 || // No bullets on screen
+                enemyBullets[enemyBullets.length - 1].y > canvasHeight * 0.75 // Last bullet has traveled 3/4 of the canvas
+            ) {
+                const shootingEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+                if (shootingEnemy) {
+                    enemyBullets.push({
+                        x: shootingEnemy.x + shootingEnemy.width / 2 - 2.5,
+                        y: shootingEnemy.y + shootingEnemy.height,
+                        width: 10,
+                        height: 20,
+                        color: 'purple',
+                    });
+                    lastEnemyBulletTime = Date.now();
+                }
+            }
+    
+            // Draw and move enemy bullets
+            enemyBullets.forEach((bullet, index) => {
+                bullet.y += 5;
+                ctx.fillStyle = bullet.color;
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    
+                // Remove bullet if it goes off-screen
+                if (bullet.y > canvasHeight) {
+                    enemyBullets.splice(index, 1);
+                }
+    
+                // Check collision with player
+                if (
+                    bullet.x < player.x + player.width &&
+                    bullet.x + bullet.width > player.x &&
+                    bullet.y < player.y + player.height &&
+                    bullet.y + bullet.height > player.y
+                ) {
+                    enemyBullets.splice(index, 1); // Remove bullet
+                    player.lives -= 1; // Decrease lives
+                    heroDiesSound.play();
+                    player.x = Math.random() * (canvasWidth - 50); // Reset player position
+                    player.y = canvasHeight - 60; // Reset player position to bottom
+    
+                    if (player.lives === 0) {
+                        backgroundMusic.pause();
+                        alert('Game Over! Your score: ' + player.score);
+                        gameOver = true; // Set gameOver flag to true
+                        return;
+                    }
+                }
+            });
+    
+            // Draw score, lives, and remaining time
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${player.score}`, 10, 20);
+            ctx.fillText(`Lives: ${player.lives}`, 10, 50);
+            const remainingTime = Math.ceil((gameDuration - elapsedTime) / 1000);
+            ctx.fillText(`Time: ${remainingTime}s`, 10, 80);
+    
+            // Check win condition
+            if (enemies.length === 0) {
+                backgroundMusic.pause();
+                alert('You Win! Your score: ' + player.score);
+                gameOver = true; // Set gameOver flag to true
+                return;
+            }
+    
+            // Loop the game
+            requestAnimationFrame(gameLoop);
+        }
+    
+        gameLoop();
+    }
+
+    // Handle configuration form submission
+    const configurationForm = document.getElementById('configuration-form');
+    configurationForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const shootKey = document.getElementById('shoot-key').value;
+        const gameTime = parseInt(document.getElementById('game-time').value, 10);
+
+        if (!shootKey || gameTime < 2 || gameTime > 10) {
+            alert('Invalid configuration. Please check your inputs.');
+            return;
+        }
+
+        showSection('game-screen');
+        startGame(shootKey, gameTime);
+    });
+});

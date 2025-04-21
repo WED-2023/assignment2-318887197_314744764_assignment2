@@ -7,3 +7,5 @@ id:
 318887197
 website link:
 
+
+added collision with the enemys
