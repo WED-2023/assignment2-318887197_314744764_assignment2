@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         // Game variables
         const player = {
-            x: Math.random() * (canvasWidth - 50),
+            x: canvasWidth / 2 - 25,
             y: canvasHeight - 60,
             width: 50,
             height: 50,
@@ -272,6 +272,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const enemyOffsetLeft = 50;
         let enemyDirection = 1; // 1 for right, -1 for left
         let enemySpeed = 1;
+        let bulletSpeed = 5;
+        const maxSpeedMultiplier = 4; // Maximum speed multiplier for enemies
+        let speedMultiplier = 1; // Initial speed multiplier for enemies
     
         const bullets = [];
         const enemyBullets = [];
@@ -299,15 +302,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         }
+
+                // Increase speed every 5 seconds, up to 4 times
+        let speedIncrements = 0; // Track the number of speed increases
+        const maxSpeedIncrements = 4; // Maximum number of speed increases
+        const speedIncreaseInterval = 5000; // Fixed interval of 5 seconds
+
+        const speedIncreaseTimer = setInterval(() => {
+            if (speedIncrements < maxSpeedIncrements) {
+                speedMultiplier += 1; // Increase speed multiplier
+                enemySpeed = 0.8 * speedMultiplier; // Update enemy speed
+                bulletSpeed = 1.8 * speedMultiplier; // Update bullet speed
+                speedIncrements++; // Increment the counter
+                console.log(`Speed increased! Multiplier: ${speedMultiplier}`);
+            } else {
+                clearInterval(speedIncreaseTimer); // Stop the timer after 4 increments
+            }
+        }, speedIncreaseInterval);
     
         // Handle player movement
         const keys = {};
         document.addEventListener('keydown', (e) => {
+            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
+                e.preventDefault(); // Prevent arrow keys from scrolling the page
+            }
             keys[e.key] = true;
         });
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
+
+document.addEventListener('keyup', (e) => {
+    keys[e.key] = false;
+});
     
         // Handle shooting
         document.addEventListener('keydown', (e) => {
@@ -382,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Collision detected
                     player.lives -= 1; // Decrease lives
                     heroDiesSound.play();
-                    player.x = Math.random() * (canvasWidth - 50); // Reset player position
+                    player.x = canvasWidth / 2 - player.width / 2; // Center horizontally at the bottom
                     player.y = canvasHeight - 60; // Reset player position to bottom
 
                     if (player.lives === 0) {
@@ -396,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
             // Draw and move bullets
             bullets.forEach((bullet, index) => {
-                bullet.y -= 10;
+                bullet.y -= bulletSpeed;
                 ctx.fillStyle = bullet.color;
                 ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
     
@@ -441,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
             // Draw and move enemy bullets
             enemyBullets.forEach((bullet, index) => {
-                bullet.y += 5;
+                bullet.y += bulletSpeed;
                 ctx.fillStyle = bullet.color;
                 ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
     
@@ -460,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     enemyBullets.splice(index, 1); // Remove bullet
                     player.lives -= 1; // Decrease lives
                     heroDiesSound.play();
-                    player.x = Math.random() * (canvasWidth - 50); // Reset player position
+                    player.x = canvasWidth / 2 - player.width / 2; // Center horizontally at the bottom
                     player.y = canvasHeight - 60; // Reset player position to bottom
     
                     if (player.lives === 0) {
