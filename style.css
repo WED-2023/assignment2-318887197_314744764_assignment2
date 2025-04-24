@@ -58,3 +58,29 @@ dialog {
 dialog::backdrop {
     background: rgba(0, 0, 0, 0.5);
 }
+
+/* Style for the New Game button */
+#new-game-button {
+    display: inline-block; /* Ensure the button is inline */
+    margin: 20px auto; /* Add spacing around the button */
+    padding: 10px 20px; /* Add padding inside the button */
+    font-size: 16px; /* Set font size */
+    font-weight: bold; /* Make the text bold */
+    color: white; /* Set text color */
+    background-color: #007bff; /* Set button background color */
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Add rounded corners */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    text-align: center; /* Center-align the text */
+    transition: background-color 0.3s ease; /* Add a smooth hover effect */
+}
+
+/* Hover effect for the New Game button */
+#new-game-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Center the button inside the scoreboard */
+#scoreboard {
+    text-align: center; /* Center-align the content in the scoreboard */
+}

@@ -14,6 +14,8 @@ function showSection(sectionId) {
     }
 }
 
+let gameOver = false; // Flag to track game over state
+
 // show only the welcome section on page load
 document.addEventListener('DOMContentLoaded', () => {
     showSection('welcome');
@@ -128,6 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             // successful login
             document.getElementById('login-error').style.display = 'none';
+            resetScoreboard(); // reset the scoreboard
+            currentPlayer = user.username; // set the current player
             showSection('configuration'); // show game screen
         } else {
             // unsuccessful login
@@ -349,14 +353,27 @@ document.addEventListener('keyup', (e) => {
     
         // Game loop
         function gameLoop() {
+            const currentTime = Date.now();
+            const elapsedTime = currentTime - startTime; 
             if (gameOver) return; // Stop the game loop if the game is over
     
             // Check if time is up
-            const elapsedTime = Date.now() - startTime;
             if (elapsedTime >= gameDuration) {
                 backgroundMusic.pause();
-                alert('Time is up! Your score: ' + player.score);
+                const message = player.score < 100
+                    ? `You can do better! Your score: ${player.score}`
+                    : 'Winner!';
                 gameOver = true; // Set gameOver flag to true
+                showScoreboard(player.score, message); // Show the scoreboard with the final score and message
+                return;
+            }
+
+            // Check if all lives are lost
+            if (player.lives === 0) {
+                backgroundMusic.pause();
+                const message = 'You Lost!';
+                gameOver = true; // Set gameOver flag to true
+                showScoreboard(player.score, message); // Show the scoreboard with the final score and message
                 return;
             }
     
@@ -411,8 +428,9 @@ document.addEventListener('keyup', (e) => {
 
                     if (player.lives === 0) {
                         backgroundMusic.pause();
-                        alert('Game Over! Your score: ' + player.score);
+                        const message = 'You Lost!';
                         gameOver = true; // Set gameOver flag to true
+                        showScoreboard(player.score, message); // Show the scoreboard with the final score and message
                         return;
                     }
                 }
@@ -462,7 +480,16 @@ document.addEventListener('keyup', (e) => {
                     lastEnemyBulletTime = Date.now();
                 }
             }
-    
+
+            // Check win condition (all enemies destroyed)
+            if (enemies.length === 0) {
+                backgroundMusic.pause();
+                const message = 'Champion!';
+                gameOver = true; // Set gameOver flag to true
+                showScoreboard(player.score, message); // Show the scoreboard with the final score and message
+                return;
+            }
+
             // Draw and move enemy bullets
             enemyBullets.forEach((bullet, index) => {
                 bullet.y += bulletSpeed;
@@ -489,8 +516,9 @@ document.addEventListener('keyup', (e) => {
     
                     if (player.lives === 0) {
                         backgroundMusic.pause();
-                        alert('Game Over! Your score: ' + player.score);
+                        const message = 'You Lost!';
                         gameOver = true; // Set gameOver flag to true
+                        showScoreboard(player.score, message); // Show the scoreboard with the final score and message
                         return;
                     }
                 }
@@ -503,14 +531,6 @@ document.addEventListener('keyup', (e) => {
             ctx.fillText(`Lives: ${player.lives}`, 10, 50);
             const remainingTime = Math.ceil((gameDuration - elapsedTime) / 1000);
             ctx.fillText(`Time: ${remainingTime}s`, 10, 80);
-    
-            // Check win condition
-            if (enemies.length === 0) {
-                backgroundMusic.pause();
-                alert('You Win! Your score: ' + player.score);
-                gameOver = true; // Set gameOver flag to true
-                return;
-            }
     
             // Loop the game
             requestAnimationFrame(gameLoop);
@@ -536,3 +556,86 @@ document.addEventListener('keyup', (e) => {
         startGame(shootKey, gameTime);
     });
 });
+
+let currentPlayer = null; // Variable to store the current player
+let gameHistory = []; // Array to store game history
+
+function showScoreboard(finalScore = null, message = '') {
+    const scoreboardList = document.getElementById('scoreboard-list');
+    const gameOverMessage = document.getElementById('game-over-message');
+    scoreboardList.innerHTML = ''; // Clear the scoreboard
+    gameOverMessage.textContent = message; // Set the game-over message
+
+    // Add the current game's score to the history if provided
+    if (finalScore !== null) {
+        gameHistory.push({ score: finalScore, isCurrent: true });
+    }
+
+    // Display the game history
+    gameHistory.forEach((game, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `Game ${index + 1}: ${game.score}`;
+        if (game.isCurrent) {
+            listItem.style.color = 'red'; // Highlight the most recent game
+        }
+        scoreboardList.appendChild(listItem);
+    });
+
+    // Show the scoreboard section
+    showSection('scoreboard');
+}
+
+function resetScoreboard() {
+    gameHistory = []; // Clear the game history
+    currentPlayer = null; // Reset the current player
+}
+
+document.getElementById('new-game-button').addEventListener('click', () => {
+    if (!gameOver) {
+        // If the game is mid-game, do not save the score
+        alert('Starting a new game. Current game score will not be saved.');
+    } else {
+        // If the game is over, save the score
+        const finalScore = gameHistory[gameHistory.length - 1]?.score || 0;
+        showScoreboard(finalScore); // Save the score to the scoreboard
+    }
+
+    // Reset game state
+    resetGameState();
+
+    // Show the configuration screen
+    showSection('configuration');
+});
+
+function resetGameState() {
+    // Reset player state
+    player = {
+        x: canvasWidth / 2 - 25,
+        y: canvasHeight - 60,
+        width: 50,
+        height: 50,
+        lives: 3,
+        score: 0,
+    };
+
+    // Clear enemies and bullets
+    enemies.length = 0;
+    bullets.length = 0;
+    enemyBullets.length = 0;
+
+    // Reset speed and timers
+    enemySpeed = 1;
+    bulletSpeed = 5;
+    speedMultiplier = 1;
+    speedIncrements = 0;
+
+    // Stop background music
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+
+    // Reset gameOver flag
+    gameOver = false;
+
+    console.log('Game state reset. Ready for a new game.');
+}
+
