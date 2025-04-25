@@ -513,15 +513,18 @@ function closeDialog() {
 }
 
 $(document).ready(() => {
+    // Close the dialog when clicking the close button
     $('#close-dialog').on('click', closeDialog);
 
+    // Close the dialog when clicking outside of it
     $('#game-dialog').on('click', (event) => {
-        if (event.target === $('#game-dialog')[0]) {
+        if (!$(event.target).closest('.modal-content').length) {
             closeDialog();
         }
     });
 
-    $('#game-dialog').on('keydown', (event) => {
+    // Close the dialog when pressing the Escape key
+    $(document).on('keydown', (event) => {
         if (event.key === 'Escape' && $('#game-dialog').is(':visible')) {
             closeDialog();
         }
