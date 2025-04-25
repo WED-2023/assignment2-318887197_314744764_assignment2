@@ -1,192 +1,164 @@
+const assets = {
+    backgroundMusic: new Audio('assets/bg_music.mp3'),
+    shootSound: new Audio('assets/hero_sound.mp3'),
+    explosionSound: new Audio('assets/enemy_dies_sound.mp3'),
+    heroDiesSound: new Audio('assets/hero_dies_sound.mp3'),
+    backgroundImage: new Image(),
+    heroImage: new Image(),
+    enemyImages: [
+        'assets/enemy1.png',
+        'assets/enemy2.png',
+        'assets/enemy3.png',
+        'assets/enemy4.png',
+    ],
+};
+
+// Set image sources
+assets.backgroundImage.src = 'assets/bg.jpeg';
+assets.heroImage.src = 'assets/hero.png';
+
+let gameOver = false; // Flag to track game over state
+let speedIncreaseTimer; // Declare the timer globally to manage it across games
+let gameLoopRunning = false; // Track whether the game loop is running
+let gameHistory = []; // Array to store game history
+let currentPlayer = null; // Variable to store the current player
+
 function showSection(sectionId) {
-    // get all sections
-    const sections = document.querySelectorAll('.content-section');
+    // Hide all sections
+    $('.content-section').hide();
 
-    // hide all sections
-    sections.forEach(section => {
-        section.style.display = 'none';
-    });
+    // Show the selected section
+    $(`#${sectionId}`).show();
 
-    // show selected 
-    const activeSection = document.getElementById(sectionId);
-    if (activeSection) {
-        activeSection.style.display = 'block';
+    // Hide or show header, footer, and sidebar
+    if (sectionId === 'game-screen') {
+        $('header, footer, .sidebar').hide();
+    } else {
+        $('header, footer, .sidebar').show();
     }
 }
 
-let gameOver = false; // Flag to track game over state
-
-// show only the welcome section on page load
-document.addEventListener('DOMContentLoaded', () => {
+// Show only the welcome section on page load
+$(document).ready(() => {
     showSection('welcome');
 });
 
-// array for signed-up users
+// Array for signed-up users
 const signedUpUsers = [
-    { username: "p", password: "testuser" } // default user
+    { username: "p", password: "testuser" } // Default user
 ];
 
-let currentPlayer = null; // Variable to store the current player
+$('#sign-up-form').on('submit', (event) => {
+    event.preventDefault(); // Prevent form from refreshing the page
 
-//  login and sign-up form handling
-document.addEventListener('DOMContentLoaded', () => {
-    const yearSelect = document.getElementById('year');
-    const daySelect = document.getElementById('day');
+    const username = $('#username').val().trim();
+    const password = $('#password').val();
+    const passwordVerification = $('#password-verification').val();
+    const name = $('#name').val().trim();
+    const lastName = $('#last-name').val().trim();
+    const email = $('#email').val().trim();
+    const year = $('#year').val();
+    const month = $('#month').val();
+    const day = $('#day').val();
 
-    // years 1950 to current year
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= 1950; year--) {
-        const option = document.createElement('option');
-        option.value = year;
-        option.textContent = year;
-        yearSelect.appendChild(option);
+    // Validation checks
+    if (!username || !password || !passwordVerification || !name || !lastName || !email || !year || !month || !day) {
+        alert('All fields must be filled!');
+        return;
     }
 
-    // days 1 to 31
-    for (let day = 1; day <= 31; day++) {
-        const option = document.createElement('option');
-        option.value = day;
-        option.textContent = day;
-        daySelect.appendChild(option);
+    if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(password)) {
+        alert('Password must be at least 8 characters long and include both letters and numbers.');
+        return;
     }
 
-    // handle form submission
-    const signUpForm = document.getElementById('sign-up-form');
-    signUpForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // prevent form from refreshing the page
+    if (/\d/.test(name) || /\d/.test(lastName)) {
+        alert('Name and Last Name cannot include numbers.');
+        return;
+    }
 
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value;
-        const passwordVerification = document.getElementById('password-verification').value;
-        const name = document.getElementById('name').value.trim();
-        const lastName = document.getElementById('last-name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const year = document.getElementById('year').value;
-        const month = document.getElementById('month').value;
-        const day = document.getElementById('day').value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        return;
+    }
 
-        // validation checks
-        if (!username || !password || !passwordVerification || !name || !lastName || !email || !year || !month || !day) {
-            alert('All fields must be filled!');
-            return;
-        }
+    if (password !== passwordVerification) {
+        alert('Passwords do not match!');
+        return;
+    }
 
-        if (!/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(password)) {
-            alert('Password must be at least 8 characters long and include both letters and numbers.');
-            return;
-        }
+    if (signedUpUsers.some(user => user.username === username)) {
+        alert('This username is already taken. Please choose a different one.');
+        return;
+    }
 
-        if (/\d/.test(name) || /\d/.test(lastName)) {
-            alert('Name and Last Name cannot include numbers.');
-            return;
-        }
+    if (signedUpUsers.some(user => user.email === email)) {
+        alert('This email is already registered. Please use a different email.');
+        return;
+    }
 
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            alert('Please enter a valid email address.');
-            return;
-        }
-
-        if (password !== passwordVerification) {
-            alert('Passwords do not match!');
-            return;
-        }
-
-        if (signedUpUsers.some(user => user.username === username)) {
-            alert('This username is already taken. Please choose a different one.');
-            return;
-        }
-
-        if (signedUpUsers.some(user => user.email === email)) {
-            alert('This email is already registered. Please use a different email.');
-            return;
-        }
-
-        // save user
-        signedUpUsers.push({
-            username,
-            password,
-            name,
-            lastName,
-            email,
-            birthday: `${year}-${month}-${day}`
-        });
-
-        alert('Sign-up successful!');
-        console.log('Signed-up users:', signedUpUsers);
-
-        // clear the form
-        signUpForm.reset();
+    // Save user
+    signedUpUsers.push({
+        username,
+        password,
+        name,
+        lastName,
+        email,
+        birthday: `${year}-${month}-${day}`
     });
 
-    // handle login form submission
-    const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // prevent form from refreshing the page
+    alert('Sign-up successful!');
+    console.log('Signed-up users:', signedUpUsers);
 
-        const loginUsername = document.getElementById('login-username').value.trim();
-        const loginPassword = document.getElementById('login-password').value;
+    // Clear the form
+    $('#sign-up-form')[0].reset();
+});
 
-        // check user exists in the users array
-        const user = signedUpUsers.find(user => user.username === loginUsername && user.password === loginPassword);
+$('#login-form').on('submit', (event) => {
+    event.preventDefault(); // Prevent form from refreshing the page
 
-        if (user) {
-            // successful login
-            document.getElementById('login-error').style.display = 'none';
-            resetScoreboard(); // reset the scoreboard
-            currentPlayer = user.username; // set the current player
-            showSection('configuration'); // show game screen
-        } else {
-            // unsuccessful login
-            document.getElementById('login-error').style.display = 'block';
+    const loginUsername = $('#login-username').val().trim();
+    const loginPassword = $('#login-password').val();
+
+    // Check if user exists in the users array
+    const user = signedUpUsers.find(user => user.username === loginUsername && user.password === loginPassword);
+
+    if (user) {
+        // Successful login
+        $('#login-error').hide();
+        resetScoreboard(); // Reset the scoreboard
+        currentPlayer = user.username; // Set the current player
+        showSection('configuration'); // Show configuration screen
+    } else {
+        // Unsuccessful login
+        $('#login-error').show();
+    }
+});
+
+// Handle "New Game" buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const newGameButtonGameScreen = document.getElementById('new-game-button-game-screen');
+    newGameButtonGameScreen.addEventListener('click', () => {
+        const confirmNewGame = confirm('Are you sure you want to start a new game? This will reset your current game progress.');
+        if (confirmNewGame) {
+            showSection('configuration'); // Navigate to the configuration screen
         }
+    });
+
+    const newGameButtonScoreboard = document.getElementById('new-game-button-scoreboard');
+    newGameButtonScoreboard.addEventListener('click', () => {
+        showSection('configuration'); // Navigate to the configuration screen
     });
 });
 
-
-// open the about 
-function openAboutDialog() {
-    const aboutModal = document.getElementById('game-dialog');
-    aboutModal.showModal(); 
-}
-
-// close the about 
-function closeDialog() {
-    const aboutModal = document.getElementById('game-dialog');
-    aboutModal.close(); 
-}
-
-// closing the dialog
-document.addEventListener('DOMContentLoaded', () => {
-    const gameDialog = document.getElementById('game-dialog');
-    const closeDialogButton = document.getElementById('close-dialog');
-
-    //  close button
-    closeDialogButton.addEventListener('click', closeDialog);
-
-    // close clicking outside of it
-    gameDialog.addEventListener('click', (event) => {
-        if (event.target === gameDialog) {
-            closeDialog();
-        }
-    });
-
-    // close when pressing the escape 
-    gameDialog.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && gameDialog.open) {
-            closeDialog();
-        }
-    });
-});
-
-
-// handle configuration form 
+// Handle configuration form
 document.addEventListener('DOMContentLoaded', () => {
     const configurationForm = document.getElementById('configuration-form');
 
     configurationForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        const shootKey = document.getElementById('shoot-key').value
+        const shootKey = document.getElementById('shoot-key').value;
         const gameTime = parseInt(document.getElementById('game-time').value, 10);
 
         // Validate shooting key
@@ -195,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // validate game time
+        // Validate game time
         if (gameTime < 2 || gameTime > 10) {
             alert('Game time must be between 2 and 10 minutes.');
             return;
@@ -204,12 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Shooting Key: ${shootKey}`);
         console.log(`Game Time: ${gameTime} minutes`);
 
-        // move to game 
+        // Move to game
         showSection('game-screen');
+        startGame(shootKey, gameTime, assets);
     });
 });
-
-//**** Game Section */
 
 // Define canvas and its dimensions globally
 const gameCanvas = document.getElementById('game-canvas');
@@ -217,17 +188,14 @@ const ctx = gameCanvas.getContext('2d');
 const canvasWidth = gameCanvas.width;
 const canvasHeight = gameCanvas.height;
 
-let gameHistory = []; // Array to store game history
-
 function startGame(shootKey, gameTime, assets) {
     const { backgroundMusic, shootSound, explosionSound, heroDiesSound, backgroundImage, heroImage, enemyImages } = assets;
 
-    // Restart background music
-    backgroundMusic.pause();
-    backgroundMusic.currentTime = 0; // Reset to the beginning
-    backgroundMusic.play();
+    // Clear any existing game state
+    clearInterval(speedIncreaseTimer); // Clear the speed increase timer
+    gameOver = false; // Reset the gameOver flag
+    gameLoopRunning = true; // Start the game loop
 
-    // Game variables
     const player = {
         x: canvasWidth / 2 - 25,
         y: canvasHeight - 60,
@@ -256,9 +224,6 @@ function startGame(shootKey, gameTime, assets) {
     const enemyBullets = [];
     let lastEnemyBulletTime = 0;
 
-    // Add a gameOver flag
-    let gameOver = false;
-
     // Timer for game time
     const startTime = Date.now();
     const gameDuration = gameTime * 60 * 1000; // Convert minutes to milliseconds
@@ -274,7 +239,7 @@ function startGame(shootKey, gameTime, assets) {
                 width: enemyWidth,
                 height: enemyHeight,
                 image: enemyImage,
-                points: (4 - row) * 5, // Points based on row (Row 4 = 5 points, Row 1 = 20 points)
+                points: (4 - row) * 5, // Points based on row
             });
         }
     }
@@ -283,16 +248,16 @@ function startGame(shootKey, gameTime, assets) {
     let speedIncrements = 0; // Track the number of speed increases
     const speedIncreaseInterval = 5000; // Fixed interval of 5 seconds
 
-    const speedIncreaseTimer = setInterval(() => {
-        if (speedIncrements < maxSpeedMultiplier) { // Cap the multiplier
-            speedMultiplier += 1; // Increase speed multiplier
-            enemySpeed = 0.8 * speedMultiplier; // Update enemy speed
-            heroBulletSpeed = 10 + speedMultiplier; // Increase hero bullet speed
-            enemyBulletSpeed = 5 + speedMultiplier; // Increase enemy bullet speed
-            speedIncrements++; // Increment the counter
+    speedIncreaseTimer = setInterval(() => {
+        if (speedIncrements < maxSpeedMultiplier) {
+            speedMultiplier += 1;
+            enemySpeed = 0.8 * speedMultiplier;
+            heroBulletSpeed = 10 + speedMultiplier;
+            enemyBulletSpeed = 5 + speedMultiplier;
+            speedIncrements++;
             console.log(`Speed increased! Multiplier: ${speedMultiplier}`);
         } else {
-            clearInterval(speedIncreaseTimer); // Stop the timer after reaching the cap
+            clearInterval(speedIncreaseTimer);
         }
     }, speedIncreaseInterval);
 
@@ -343,13 +308,13 @@ function startGame(shootKey, gameTime, assets) {
 
     // Game loop
     function gameLoop() {
+        if (gameOver || !gameLoopRunning) {
+            gameLoopRunning = false; // Stop the game loop
+            return;
+        }
+
         const currentTime = Date.now();
         const elapsedTime = currentTime - startTime;
-        
-        if (gameOver) {
-            clearInterval(speedIncreaseTimer); // Stop the speed increase timer
-            return; // Exit the game loop
-        }
 
         // Check if time is up
         if (elapsedTime >= gameDuration) {
@@ -357,8 +322,9 @@ function startGame(shootKey, gameTime, assets) {
             const message = player.score < 100
                 ? `You can do better! Your score: ${player.score}`
                 : 'Winner!';
-            gameOver = true; // Set gameOver flag to true
-            showScoreboard(player.score, message); // Show the scoreboard with the final score and message
+            gameOver = true;
+            clearInterval(speedIncreaseTimer);
+            showScoreboard(player.score, message);
             return;
         }
 
@@ -366,8 +332,9 @@ function startGame(shootKey, gameTime, assets) {
         if (player.lives === 0) {
             backgroundMusic.pause();
             const message = 'You Lost!';
-            gameOver = true; // Set gameOver flag to true
-            showScoreboard(player.score, message); // Show the scoreboard with the final score and message
+            gameOver = true;
+            clearInterval(speedIncreaseTimer);
+            showScoreboard(player.score, message);
             return;
         }
 
@@ -410,7 +377,7 @@ function startGame(shootKey, gameTime, assets) {
 
         // Draw and move hero bullets
         bullets.forEach((bullet, index) => {
-            bullet.y -= heroBulletSpeed; // Use heroBulletSpeed
+            bullet.y -= heroBulletSpeed;
             ctx.fillStyle = bullet.color;
             ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
 
@@ -427,9 +394,9 @@ function startGame(shootKey, gameTime, assets) {
                     bullet.y < enemy.y + enemy.height &&
                     bullet.y + bullet.height > enemy.y
                 ) {
-                    bullets.splice(index, 1); // Remove bullet
-                    enemies.splice(enemyIndex, 1); // Remove enemy
-                    player.score += enemy.points; // Add points
+                    bullets.splice(index, 1);
+                    enemies.splice(enemyIndex, 1);
+                    player.score += enemy.points;
                     explosionSound.play();
                 }
             });
@@ -437,7 +404,7 @@ function startGame(shootKey, gameTime, assets) {
 
         // Draw and move enemy bullets
         enemyBullets.forEach((bullet, index) => {
-            bullet.y += enemyBulletSpeed; // Use enemyBulletSpeed
+            bullet.y += enemyBulletSpeed;
             ctx.fillStyle = bullet.color;
             ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
 
@@ -453,13 +420,13 @@ function startGame(shootKey, gameTime, assets) {
                 bullet.y < player.y + player.height &&
                 bullet.y + bullet.height > player.y
             ) {
-                enemyBullets.splice(index, 1); // Remove bullet
-                player.lives -= 1; // Decrease player lives
+                enemyBullets.splice(index, 1);
+                player.lives -= 1;
                 heroDiesSound.play();
 
                 // Reset player's position
-                player.x = canvasWidth / 2 - player.width / 2; // Center horizontally
-                player.y = canvasHeight - player.height - 10; // Near the bottom
+                player.x = canvasWidth / 2 - player.width / 2;
+                player.y = canvasHeight - player.height - 10;
             }
         });
 
@@ -467,8 +434,9 @@ function startGame(shootKey, gameTime, assets) {
         if (enemies.length === 0) {
             backgroundMusic.pause();
             const message = 'Champion!';
-            gameOver = true; // Set gameOver flag to true
-            showScoreboard(player.score, message); // Show the scoreboard with the final score and message
+            gameOver = true;
+            clearInterval(speedIncreaseTimer);
+            showScoreboard(player.score, message);
             return;
         }
 
@@ -486,56 +454,6 @@ function startGame(shootKey, gameTime, assets) {
 
     gameLoop();
 }
-
-// handle the game screen
-document.addEventListener('DOMContentLoaded', () => {
-    const backgroundMusic = new Audio('assets/bg_music.mp3');
-    backgroundMusic.volume = 0.5;
-    backgroundMusic.loop = true;
-
-    const shootSound = new Audio('assets/hero_sound.mp3');
-    const explosionSound = new Audio('assets/enemy_dies_sound.mp3');
-    const heroDiesSound = new Audio('assets/hero_dies_sound.mp3');
-
-    const backgroundImage = new Image();
-    backgroundImage.src = 'assets/bg.jpeg';
-
-    const heroImage = new Image();
-    heroImage.src = 'assets/hero.png';
-
-    const enemyImages = [
-        'assets/enemy1.png',
-        'assets/enemy2.png',
-        'assets/enemy3.png',
-        'assets/enemy4.png',
-    ];
-
-    const assets = {
-        backgroundMusic,
-        shootSound,
-        explosionSound,
-        heroDiesSound,
-        backgroundImage,
-        heroImage,
-        enemyImages,
-    };
-
-    const configurationForm = document.getElementById('configuration-form');
-    configurationForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        const shootKey = document.getElementById('shoot-key').value;
-        const gameTime = parseInt(document.getElementById('game-time').value, 10);
-
-        if (!shootKey || gameTime < 2 || gameTime > 10) {
-            alert('Invalid configuration. Please check your inputs.');
-            return;
-        }
-
-        showSection('game-screen');
-        startGame(shootKey, gameTime, assets);
-    });
-});
 
 function showScoreboard(finalScore = null, message = '') {
     const scoreboardList = document.getElementById('scoreboard-list');
@@ -575,14 +493,46 @@ function showScoreboard(finalScore = null, message = '') {
     showSection('scoreboard');
 }
 
+function resetGameState() {
+    clearInterval(speedIncreaseTimer); // Clear the speed increase timer
+    gameOver = true; // Set the gameOver flag to true
+    gameLoopRunning = false; // Stop the game loop
+}
+
 function resetScoreboard() {
     gameHistory = []; // Clear the game history
     currentPlayer = null; // Reset the current player
 }
 
-document.getElementById('new-game-button').addEventListener('click', () => {
+function openAboutDialog() {
+    $('#game-dialog').show(); // Show the dialog
+}
 
-    // Show the configuration screen
-    showSection('configuration');
+function closeDialog() {
+    $('#game-dialog').hide(); // Hide the dialog
+}
+
+$(document).ready(() => {
+    $('#close-dialog').on('click', closeDialog);
+
+    $('#game-dialog').on('click', (event) => {
+        if (event.target === $('#game-dialog')[0]) {
+            closeDialog();
+        }
+    });
+
+    $('#game-dialog').on('keydown', (event) => {
+        if (event.key === 'Escape' && $('#game-dialog').is(':visible')) {
+            closeDialog();
+        }
+    });
 });
 
+function playSound(sound) {
+    sound.currentTime = 0; // Reset the sound to the beginning
+    sound.play();
+}
+
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}

@@ -4,134 +4,140 @@
         <meta charset="UTF-8">
         <title>Our App Name</title>
         <link rel="stylesheet" href="style.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     </head>
-    <body></body>
-        <header>
-            <div class="app-name">Our App Name</div>
-        </header>
-        <div class="container">
-            <nav class="sidebar">
-                <ul>
-                    <li><a href="#" onclick="showSection('welcome')">welcome</a></li>
-                    <li><a href="#" onclick="showSection('sign-up')">sign up page</a></li>
-                    <li><a href="#" onclick="showSection('login')">login page</a></li>
-                    <li><a href="#" onclick="openAboutDialog()">about</a></li>
-                </ul>
-            </nav>
-        </div>
-        <main class="main-content">
-            <div id="welcome" class="content-section active">
-                <h2>welcome</h2>
-                <p>This is the welcome content.</p>
-                <p> id1 314744764 id2 318887197</p>
-                <p> insert link to lea's website: https://wed-2023.github.io/314744764/</p>
-                <p> insert link to denis' website: https://wed-2023.github.io/318887197/</p>
-                <button onclick="showSection('sign-up')">Sign Up</button>
-                <button onclick="showSection('login')">Log In</button>
+    <body>
+        <div class="page-container">
+            <header>
+                <div class="app-name">Our App Name</div>
+            </header>
+            <div class="container">
+                <nav class="sidebar">
+                    <ul>
+                        <li><a href="#" onclick="showSection('welcome')">welcome</a></li>
+                        <li><a href="#" onclick="showSection('sign-up')">sign up page</a></li>
+                        <li><a href="#" onclick="showSection('login')">login page</a></li>
+                        <li><a href="#" onclick="openAboutDialog()">about</a></li>
+                    </ul>
+                </nav>
             </div>
-            <div id="sign-up" class="content-section">
-                <h2>Sign Up Page</h2>
-                <p>Please fill in the form below to sign up:</p>
-                <form id="sign-up-form">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required><br><br>
-            
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required><br><br>
-            
-                    <label for="password-verification">Verify Password:</label>
-                    <input type="password" id="password-verification" name="password-verification" required><br><br>
-            
-                    <label for="name">First Name:</label>
-                    <input type="text" id="name" name="name" required><br><br>
-            
-                    <label for="last-name">Last Name:</label>
-                    <input type="text" id="last-name" name="last-name" required><br><br>
-            
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required><br><br>
-            
-                    <label for="birthday">Birthday:</label>
-                    <select id="year" name="year" required>
-                        <option value="">Year</option>
-                        <!-- adding year options dynamically -->
-                    </select>
-                    <select id="month" name="month" required>
-                        <option value="">Month</option>
-                        <option value="1">January</option>
-                        <option value="2">February</option>
-                        <option value="3">March</option>
-                        <option value="4">April</option>
-                        <option value="5">May</option>
-                        <option value="6">June</option>
-                        <option value="7">July</option>
-                        <option value="8">August</option>
-                        <option value="9">September</option>
-                        <option value="10">October</option>
-                        <option value="11">November</option>
-                        <option value="12">December</option>
-                    </select>
-                    <select id="day" name="day" required>
-                        <option value="">Day</option>
-                        <!-- adding day options dynamically -->
-                    </select><br><br>
-            
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-            <div id="login" class="content-section">
-                <h2>Login Page</h2>
-                <p>Please enter your username and password to log in:</p>
-                <form id="login-form">
-                    <label for="login-username">Username:</label>
-                    <input type="text" id="login-username" name="login-username" required><br><br>
-            
-                    <label for="login-password">Password:</label>
-                    <input type="password" id="login-password" name="login-password" required><br><br>
-            
-                    <button type="submit">Log In</button>
-                </form>
-                <p id="login-error" style="color: red; display: none;">Invalid username or password. Please try again.</p>
-            </div>
-            <div id="game" class="content-section">
-                <h2>Game Screen</h2>
-                <p>Welcome to the game! You are now logged in.</p>
-            </div>
-            <dialog id="game-dialog">
-                <div class="modal-content">
-                    <button id="close-dialog" type="button" class="close-button">X</button>
-                    <h2>Game Dialog</h2>
-                    <p>This is a dialog for the game.</p>
+            <main class="main-content">
+                <div id="welcome" class="content-section active">
+                    <h2>welcome</h2>
+                    <p>This is the welcome content.</p>
+                    <p> id1 314744764 id2 318887197</p>
+                    <p> insert link to lea's website: https://wed-2023.github.io/314744764/</p>
+                    <p> insert link to denis' website: https://wed-2023.github.io/318887197/</p>
+                    <button onclick="showSection('sign-up')">Sign Up</button>
+                    <button onclick="showSection('login')">Log In</button>
                 </div>
-            </dialog>
-            <div id="configuration" class="content-section">
-                <h2>Game Configuration</h2>
-                <form id="configuration-form">
-                    <label for="shoot-key">Choose your shooting key:</label>
-                    <input type="text" id="shoot-key" maxlength="1" placeholder="Enter a letter or space" required><br><br>
+                <div id="sign-up" class="content-section">
+                    <h2>Sign Up Page</h2>
+                    <p>Please fill in the form below to sign up:</p>
+                    <form id="sign-up-form">
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" required><br><br>
+                
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required><br><br>
+                
+                        <label for="password-verification">Verify Password:</label>
+                        <input type="password" id="password-verification" name="password-verification" required><br><br>
+                
+                        <label for="name">First Name:</label>
+                        <input type="text" id="name" name="name" required><br><br>
+                
+                        <label for="last-name">Last Name:</label>
+                        <input type="text" id="last-name" name="last-name" required><br><br>
+                
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required><br><br>
+                
+                        <label for="birthday">Birthday:</label>
+                        <select id="year" name="year" required>
+                            <option value="">Year</option>
+                            <!-- adding year options dynamically -->
+                        </select>
+                        <select id="month" name="month" required>
+                            <option value="">Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select id="day" name="day" required>
+                            <option value="">Day</option>
+                            <!-- adding day options dynamically -->
+                        </select><br><br>
+                
+                        <button type="submit">Submit</button>
+                    </form>
+                </div>
+                <div id="login" class="content-section">
+                    <h2>Login Page</h2>
+                    <p>Please enter your username and password to log in:</p>
+                    <form id="login-form">
+                        <label for="login-username">Username:</label>
+                        <input type="text" id="login-username" name="login-username" required><br><br>
+                
+                        <label for="login-password">Password:</label>
+                        <input type="password" id="login-password" name="login-password" required><br><br>
+                
+                        <button type="submit">Log In</button>
+                    </form>
+                    <p id="login-error" style="color: red; display: none;">Invalid username or password. Please try again.</p>
+                </div>
+                <div id="game" class="content-section">
+                    <h2>Game Screen</h2>
+                    <p>Welcome to the game! You are now logged in.</p>
+                </div>
+                <dialog id="game-dialog">
+                    <div class="modal-content">
+                        <button id="close-dialog" type="button" class="close-button">X</button>
+                        <h2>Game Dialog</h2>
+                        <p>This is a dialog for the game.</p>
+                    </div>
+                </dialog>
+                <div id="configuration" class="content-section">
+                    <h2>Game Configuration</h2>
+                    <form id="configuration-form">
+                        <label for="shoot-key">Choose your shooting key:</label>
+                        <input type="text" id="shoot-key" maxlength="1" placeholder="Enter a letter or space" required><br><br>
 
-                    <label for="game-time">Choose game time (2-10 mins):</label>
-                    <input type="number" id="game-time" min="2" max="10" value="2" required><br><br>
+                        <label for="game-time">Choose game time (2-10 mins):</label>
+                        <input type="number" id="game-time" min="2" max="10" value="2" required><br><br>
 
-                    <button type="submit">Start Game</button>
-                </form>
-            </div>
-            <div id="game-screen" class="content-section">
-                <h2>Game Screen</h2>
-                <canvas id="game-canvas" width="800" height="600" style="border: 1px solid black;"></canvas>
-            </div>
-            <div id="scoreboard" class="content-section" style="display: none;">
-                <h2>Scoreboard</h2>
-                <p id="game-over-message"></p> <!-- Placeholder for game-over message -->
-                <ul id="scoreboard-list"></ul> <!-- List of game scores -->
-                <button id="new-game-button">New Game</button>
-            </div>
-        </main>
-        <footer>
-            <p>2025 Our App Name. All rights reserved.</p>
-            <p>Denis and Lea are the best</p>
-            <p>contact at 555-please dont-404</p>
-        </footer>
+                        <button type="submit">Start Game</button>
+                    </form>
+                </div>
+                <!-- Game Screen -->
+                <div id="game-screen" class="content-section">
+                    <canvas id="game-canvas" width="1000" height="600" style="border: 1px solid black;"></canvas>
+                    <button id="new-game-button-game-screen">New Game</button>
+                </div>
+
+                <!-- Scoreboard -->
+                <div id="scoreboard" class="content-section" style="display: none;">
+                    <h2>Scoreboard</h2>
+                    <p id="game-over-message"></p> <!-- Placeholder for game-over message -->
+                    <ul id="scoreboard-list"></ul> <!-- List of game scores -->
+                    <button id="new-game-button-scoreboard">New Game</button>
+                </div>
+            </main>
+            <footer>
+                <p>2025 Our App Name. All rights reserved.</p>
+                <p>Denis and Lea are the best</p>
+                <p>contact at 555-please dont-404</p>
+            </footer>
+        </div>
         <script src="spaceship.js"></script>
     </body>
 </html>
