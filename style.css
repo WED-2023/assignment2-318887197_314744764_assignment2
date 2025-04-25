@@ -20,13 +20,28 @@ html, body {
 
 /* Header Styling */
 header {
-    background: linear-gradient(to right, #1a1a2e, #16213e); /* Dark space-like gradient */
+    display: flex;
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    padding: 1rem;
+    background: linear-gradient(to right, #1a1a2e, #16213e); /* Space-like gradient */
     color: #fff;
-    padding: 1rem 0;
-    text-align: center;
-    font-size: 1.5rem;
+    position: relative; /* Allow positioning of the logo */
+}
+
+header .logo {
+    padding-top: 50px;
+    padding-left: 50px;
+    position: absolute;
+    left: 1rem; /* Position the logo on the left */
+    height: 150px; /* Increase the height for a bigger logo */
+    width: auto; /* Maintain aspect ratio */
+}
+
+header .app-name {
+    font-size: 2rem; /* Slightly larger font size for the app name */
     font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Add depth */
+    text-align: center;
 }
 
 /* Sidebar Styling */
